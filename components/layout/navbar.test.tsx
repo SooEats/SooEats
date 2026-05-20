@@ -7,6 +7,8 @@ vi.mock('@/lib/cart-context', () => ({
   useCart: () => ({
     totalItems: 0,
     setIsCartOpen: vi.fn(),
+    isAuthenticated: true,
+    openAuthDialog: vi.fn(),
   }),
 }));
 

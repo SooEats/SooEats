@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { menuItems } from '@/lib/data/menu';
+import { useMenuItems } from '@/lib/use-menu-items';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -12,6 +12,8 @@ const fadeUp = {
 };
 
 export default function NutritionPage() {
+  const menuItems = useMenuItems();
+
   return (
     <main>
       {/* Hero */}

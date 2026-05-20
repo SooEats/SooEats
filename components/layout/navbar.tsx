@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingBag } from 'lucide-react';
+import { Menu, X, ShoppingBag, UserCircle } from 'lucide-react';
+import type { User } from '@supabase/supabase-js';
 import { clsx } from 'clsx';
 import { useCart } from '@/lib/cart-context';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export interface NavLink {
   label: string;
@@ -28,7 +30,8 @@ const defaultLinks: NavLink[] = [
 export function Navbar({ links = defaultLinks }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { totalItems, setIsCartOpen } = useCart();
+  const [user, setUser] = useState<User | null>(null);
+  const { totalItems, setIsCartOpen, isAuthenticated, openAuthDialog } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -36,11 +39,38 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+
+      supabase.auth.getUser().then(({ data }) => setUser(data.user));
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+
+      return () => subscription.unsubscribe();
+    } catch {
+      return undefined;
+    }
+  }, []);
+
   const toggleMobileMenu = () => setIsMobileMenuOpen((v) => !v);
   const closeMobileMenu  = () => setIsMobileMenuOpen(false);
+  const openCart = () => {
+    if (!isAuthenticated) {
+      openAuthDialog();
+      return;
+    }
 
-  const leftLinks = links.slice(0, Math.ceil(links.length - 1));
-  const rightLinks = links.slice(4);
+    setIsCartOpen(true);
+  };
+  const signOut = async () => {
+    await fetch('/api/auth/signout', { method: 'POST' });
+    window.location.assign('/login');
+  };
 
   return (
     <nav
@@ -51,16 +81,16 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
           : 'bg-white'
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 sm:h-18 md:h-20 lg:grid lg:grid-cols-[minmax(0,2fr)_auto_minmax(0,1.5fr)] lg:gap-x-10 xl:gap-x-14">
 
-          {/* Desktop left links */}
-          <div className="hidden lg:flex items-center gap-8 flex-1">
-            {leftLinks.map((link) => (
+          {/* Desktop navigation links */}
+          <div className="hidden lg:flex min-w-0 items-center justify-end gap-4 xl:gap-7">
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13px] uppercase tracking-widest text-brown-500 hover:text-orange-600 transition-colors duration-300"
+                className="whitespace-nowrap text-[12px] xl:text-[13px] uppercase tracking-[0.14em] xl:tracking-widest text-brown-500 hover:text-orange-600 transition-colors duration-300"
               >
                 {link.label}
               </Link>
@@ -70,10 +100,10 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
           {/* Centered brand with logo */}
           <Link
             href="/"
-            className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg px-3 py-1"
+            className="flex min-w-0 items-center gap-2 sm:gap-3 group focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg px-2 py-1 sm:px-3 md:px-4 lg:w-lg lg:px-6 lg:justify-self-center"
             aria-label="SOOEATS Home"
           >
-            <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-100 group-hover:ring-orange-300 transition-all duration-300">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-100 group-hover:ring-orange-300 transition-all duration-300">
               <Image
                 src="/logo.jpeg"
                 alt="SOOEATS"
@@ -81,51 +111,68 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
                 className="object-cover"
               />
             </div>
-            <div className="flex flex-col">
-              <span className="font-logo text-[20px] sm:text-[26px] tracking-wide leading-none">
+            <div className="flex min-w-0 flex-col">
+              <span className="font-logo text-[19px] sm:text-[24px] md:text-[26px] tracking-wide leading-none">
                 <span className="text-brown-900">SOO</span><span className="text-orange-500">EATS</span>
               </span>
-              <span className="text-[7px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.3em] text-brown-400 font-semibold mt-1">
+              <span className="max-w-[11rem] truncate text-[6px] sm:max-w-[16rem] sm:text-[8px] md:max-w-none md:text-[9px] uppercase tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] text-brown-400 font-semibold mt-1">
                 Healthy Has Never Tasted This Good
               </span>
             </div>
           </Link>
 
-          {/* Desktop right links + cart */}
-          <div className="hidden lg:flex items-center gap-8 flex-1 justify-end">
-            {rightLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-[13px] uppercase tracking-widest text-brown-500 hover:text-orange-600 transition-colors duration-300"
+          {/* Desktop actions */}
+          <div className="hidden lg:flex items-center justify-start gap-2 xl:gap-3">
+            <div className="flex items-center gap-2 xl:gap-3">
+              <button
+                onClick={openCart}
+                className="relative p-2 text-brown-700 hover:text-orange-600 transition-colors"
+                aria-label="Open cart"
               >
-                {link.label}
+                <ShoppingBag className="w-6 h-6" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+              <Link
+                href="/menu"
+                className="hidden xl:inline-flex px-5 py-2.5 text-[13px] uppercase tracking-widest text-white bg-brown-900 hover:bg-orange-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+              >
+                Order Now
               </Link>
-            ))}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="relative ml-2 p-2 text-brown-700 hover:text-orange-600 transition-colors"
-              aria-label="Open cart"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-            <Link
-              href="/menu"
-              className="ml-2 px-6 py-2.5 text-[13px] uppercase tracking-widest text-white bg-brown-900 hover:bg-orange-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-            >
-              Order Now
-            </Link>
+            </div>
+            {user ? (
+              <>
+                <Link
+                  href="/account"
+                  className="p-2 text-brown-700 hover:text-orange-600 transition-colors"
+                  aria-label="Account"
+                >
+                  <UserCircle className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="whitespace-nowrap text-[12px] xl:text-[13px] uppercase tracking-[0.14em] xl:tracking-widest text-brown-500 hover:text-orange-600 transition-colors duration-300"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="whitespace-nowrap border border-green-600 bg-green-600 px-5 py-2.5 text-[12px] xl:text-[13px] uppercase tracking-[0.14em] xl:tracking-widest text-white hover:border-green-700 hover:bg-green-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
 
           {/* Mobile: cart + toggle */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex shrink-0 lg:hidden items-center gap-1 sm:gap-2">
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={openCart}
               className="relative p-2 text-brown-700 hover:text-orange-600 transition-colors"
               aria-label="Open cart"
             >
@@ -161,7 +208,7 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="lg:hidden bg-white border-t border-brown-100"
           >
-            <div className="px-6 py-8 space-y-1">
+            <div className="max-h-[calc(100vh-4rem)] overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 space-y-1">
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -179,6 +226,34 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
               >
                 Order Now
               </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/account"
+                    onClick={closeMobileMenu}
+                    className="block px-4 py-3 text-sm uppercase tracking-widest text-brown-600 hover:text-orange-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    Account
+                  </Link>
+                  <button
+                    onClick={() => {
+                      closeMobileMenu();
+                      void signOut();
+                    }}
+                    className="block w-full px-4 py-3 text-left text-sm uppercase tracking-widest text-brown-600 hover:text-orange-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={closeMobileMenu}
+                  className="block mt-4 px-4 py-3 text-center text-sm uppercase tracking-widest border border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                  Sign in
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

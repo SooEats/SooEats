@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { menuItems } from '@/lib/data/menu';
+import { useMenuItems } from '@/lib/use-menu-items';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -11,9 +11,10 @@ const fadeUp = {
   transition: { duration: 0.7, ease: 'easeOut' as const },
 };
 
-const featured = menuItems.filter((item) => item.macros.calories > 0).slice(0, 4);
-
 export default function SooEatsPage() {
+  const menuItems = useMenuItems();
+  const featured = menuItems.filter((item) => item.macros.calories > 0).slice(0, 4);
+
   return (
     <main>
       {/* Hero */}

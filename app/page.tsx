@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, useMotionValue, useAnimationFrame } from 'framer-motion';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { menuItems } from '@/lib/data/menu';
+import { useMenuItems } from '@/lib/use-menu-items';
 import { useCart } from '@/lib/cart-context';
 import { useRef, useState } from 'react';
 
@@ -18,6 +18,7 @@ const fadeUp = {
 
 function FeaturedItemsCarousel() {
   const { addItem } = useCart();
+  const menuItems = useMenuItems();
   const x = useMotionValue(0);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

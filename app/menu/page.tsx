@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
-import { menuItems } from '@/lib/data/menu';
+import { useMenuItems } from '@/lib/use-menu-items';
 import { useCart } from '@/lib/cart-context';
 
 const categories = ['breakfast', 'lunch', 'drinks', 'dessert'] as const;
@@ -17,6 +17,7 @@ const fadeUp = {
 
 export default function MenuPage() {
   const { addItem } = useCart();
+  const menuItems = useMenuItems();
 
   return (
     <main>

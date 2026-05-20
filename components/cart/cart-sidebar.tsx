@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
@@ -106,14 +107,11 @@ export function CartSidebar() {
                     ${totalPrice.toFixed(2)}
                   </span>
                 </div>
-                <Button
-                  className="w-full bg-brown-900 text-white hover:bg-orange-600 shadow-none rounded-none px-8 py-4 text-sm uppercase tracking-widest font-semibold transition-colors duration-300"
-                  onClick={() => {
-                    alert('Checkout coming soon!');
-                  }}
-                >
-                  Proceed to Checkout
-                </Button>
+                <Link href="/checkout" onClick={() => setIsCartOpen(false)}>
+                  <Button className="w-full bg-brown-900 text-white hover:bg-orange-600 shadow-none rounded-none px-8 py-4 text-sm uppercase tracking-widest font-semibold transition-colors duration-300">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
                 <button
                   onClick={clearCart}
                   className="w-full text-center text-xs text-brown-400 hover:text-red-500 transition-colors uppercase tracking-widest"
