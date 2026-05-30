@@ -11,8 +11,10 @@ const fadeUp = {
   transition: { duration: 0.7, ease: 'easeOut' as const },
 };
 
+const hiddenNutritionItemIds = new Set(['protein-coffee-regular']);
+
 export default function NutritionPage() {
-  const menuItems = useMenuItems();
+  const menuItems = useMenuItems().filter((item) => !hiddenNutritionItemIds.has(item.id));
 
   return (
     <main>

@@ -47,6 +47,30 @@ export function AuthForm({
         )}
       </div>
 
+      {!isLogin && (
+        <div>
+          <label
+            htmlFor={`${mode}-username`}
+            className="mb-2 block text-[11px] uppercase tracking-widest text-brown-500"
+          >
+            Username
+          </label>
+          <input
+            id={`${mode}-username`}
+            name="username"
+            type="text"
+            autoComplete="username"
+            placeholder="Jane Smith"
+            className="w-full border border-brown-200 bg-white px-4 py-3 text-sm text-brown-800 placeholder-brown-300 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+          {state.fieldErrors?.username && (
+            <p className="mt-1 text-xs text-red-500">
+              {state.fieldErrors.username[0]}
+            </p>
+          )}
+        </div>
+      )}
+
       <div>
         <label
           htmlFor={`${mode}-password`}

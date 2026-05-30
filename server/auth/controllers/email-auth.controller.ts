@@ -24,7 +24,7 @@ export async function signInWithEmail({ email, password }: AuthCredentials) {
   return data;
 }
 
-export async function signUpWithEmail({ email, password }: AuthCredentials) {
+export async function signUpWithEmail({ email, password, username }: AuthCredentials) {
   const supabase = await createSupabaseServerClient();
   const emailRedirectTo = new URL(AUTH_ROUTES.confirm, getSiteUrl()).toString();
   const { data, error } = await supabase.auth.signUp({
@@ -32,6 +32,12 @@ export async function signUpWithEmail({ email, password }: AuthCredentials) {
     password,
     options: {
       emailRedirectTo,
+      data: username
+        ? {
+            username,
+            name: username,
+          }
+        : undefined,
     },
   });
 

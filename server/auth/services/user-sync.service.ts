@@ -31,7 +31,7 @@ export async function syncSupabaseUserToDatabase(user: SupabaseUser) {
   return ensureAppUser({
     supabaseUserId: user.id,
     email: user.email,
-    name: readStringMetadata(user.user_metadata, ["full_name", "name"]),
+    name: readStringMetadata(user.user_metadata, ["username", "full_name", "name"]),
     avatarUrl: readStringMetadata(user.user_metadata, ["avatar_url", "picture"]),
     provider,
     emailVerified: Boolean(user.email_confirmed_at || user.confirmed_at),

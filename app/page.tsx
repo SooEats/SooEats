@@ -16,6 +16,12 @@ const fadeUp = {
   transition: { duration: 0.8, ease: 'easeOut' as const },
 };
 
+const hiddenFeaturedItemIds = new Set([
+  'signature-protein-wrap-regular',
+  'tandoori-wrap-regular',
+  'protein-coffee-regular',
+]);
+
 function FeaturedItemsCarousel() {
   const { addItem } = useCart();
   const menuItems = useMenuItems();
@@ -36,7 +42,8 @@ function FeaturedItemsCarousel() {
     x.set(next);
   });
 
-  const items = [...menuItems, ...menuItems];
+  const featuredMenuItems = menuItems.filter((item) => !hiddenFeaturedItemIds.has(item.id));
+  const items = [...featuredMenuItems, ...featuredMenuItems];
 
   return (
     <div
@@ -93,9 +100,11 @@ function FeaturedItemsCarousel() {
                 <h3 className="font-display font-bold text-lg text-brown-900">{item.name}</h3>
                 <p className="text-brown-400 text-sm mt-1">{item.description}</p>
               </div>
-              <span className="font-semibold text-orange-500 text-lg ml-4 shrink-0">
-                ${item.price.toFixed(2)}
-              </span>
+              {item.macros.calories > 0 && (
+                <span className="font-semibold text-orange-500 text-lg ml-4 shrink-0">
+                  ${item.price.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
         ))}

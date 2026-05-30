@@ -19,9 +19,16 @@ const fadeUp = {
 const wrapVariantGroups: Record<string, string[]> = {
   'signature-protein-wrap': ['signature-protein-wrap-regular', 'signature-protein-wrap'],
   'tandoori-wrap': ['tandoori-wrap-regular', 'tandoori-wrap'],
+  'protein-coffee': ['protein-coffee-regular', 'protein-coffee'],
 };
 
 const hiddenVariantIds = new Set(Object.values(wrapVariantGroups).flatMap((ids) => ids.slice(0, -1)));
+
+const variantServingLabels: Record<string, string> = {
+  'signature-protein-wrap': 'Regular 2 / Large 4',
+  'tandoori-wrap': 'Regular 2 / Large 4',
+  'protein-coffee': 'Regular / Large',
+};
 
 function getDisplayName(item: FoodItem) {
   return item.name.replace(/\s+-\s+(Regular|Large)$/i, '');
@@ -96,7 +103,9 @@ export default function MenuPage() {
                     ?.map((variantId) => menuItems.find((candidate) => candidate.id === variantId))
                     .filter((variant): variant is FoodItem => Boolean(variant));
                   const hasVariants = Boolean(variants?.length);
-                  const displayPrice = hasVariants
+                  const displayPrice = item.macros.calories === 0
+                    ? null
+                    : hasVariants
                     ? `$${variants![0].price.toFixed(2)} - $${variants![variants!.length - 1].price.toFixed(2)}`
                     : `$${item.price.toFixed(2)}`;
 
@@ -144,12 +153,14 @@ export default function MenuPage() {
                             {item.description}
                           </p>
                         </div>
-                        <span className="font-display font-bold text-xl text-orange-500 shrink-0">
-                          {displayPrice}
-                        </span>
+                        {displayPrice && (
+                          <span className="font-display font-bold text-xl text-orange-500 shrink-0">
+                            {displayPrice}
+                          </span>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-6 mt-3 text-xs text-brown-400">
-                        <span className="font-medium">{hasVariants ? 'Regular 2 / Large 4' : item.serving}</span>
+                        <span className="font-medium">{hasVariants ? variantServingLabels[item.id] : item.serving}</span>
                         {item.macros.calories > 0 && !hasVariants && (
                           <>
                             <span>{item.macros.calories} cal</span>

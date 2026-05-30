@@ -54,19 +54,11 @@ export default function VisionPage() {
             </p>
           </motion.div>
 
-          {/* Two images side by side */}
-          <motion.div {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-            <div className="relative aspect-[4/3] w-full overflow-hidden">
+          {/* Center image */}
+          <motion.div {...fadeUp} className="mb-24 flex justify-center">
+            <div className="relative aspect-square w-full max-w-[460px] overflow-hidden rounded-full">
               <Image
-                src="/vision_banner.jpg"
-                alt="Our vision for the future"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="relative aspect-[4/3] w-full overflow-hidden">
-              <Image
-                src="/vision_banner.jpg"
+                src="/vision_inside.jpg"
                 alt="Growing community"
                 fill
                 className="object-cover"

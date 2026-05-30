@@ -49,7 +49,7 @@ export default function StoryPage() {
       <section className="relative h-[45vh] min-h-[350px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/story.png"
+            src="/vision_inside.jpg"
             alt="Our story"
             fill
             className="object-cover"

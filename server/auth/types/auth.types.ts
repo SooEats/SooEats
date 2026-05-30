@@ -7,4 +7,5 @@ export interface AuthActionResult {
 export interface AuthCredentials {
   email: string;
   password: string;
+  username?: string;
 }

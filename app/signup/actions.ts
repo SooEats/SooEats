@@ -21,6 +21,7 @@ export async function signupWithEmailAction(
 ): Promise<AuthActionResult> {
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
+    username: formData.get("username"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
     next: formData.get("next") || undefined,
@@ -30,7 +31,7 @@ export async function signupWithEmailAction(
     return {
       ok: false,
       fieldErrors: parsed.error.flatten().fieldErrors,
-      message: "Please check your email and password.",
+      message: "Please check your username, email, and password.",
     };
   }
 
