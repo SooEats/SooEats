@@ -89,7 +89,7 @@ export default function NutritionPage() {
                     src={item.image}
                     alt={item.name}
                     fill
-                    className="object-cover"
+                    className={`object-cover ${item.macros.calories === 0 ? 'scale-110 blur-xl' : ''}`}
                     sizes="200px"
                   />
                 </div>
@@ -125,7 +125,24 @@ export default function NutritionPage() {
                         </div>
                       </>
                     ) : (
-                      <p className="text-brown-400 text-sm italic">Coming soon</p>
+                      <>
+                        <div className="text-center">
+                          <p className="font-bold text-orange-500 text-lg">X</p>
+                          <p className="text-[10px] uppercase tracking-widest text-brown-400">Cal</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold text-green-600 text-lg">Xg</p>
+                          <p className="text-[10px] uppercase tracking-widest text-brown-400">Protein</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold text-brown-600 text-lg">Xg</p>
+                          <p className="text-[10px] uppercase tracking-widest text-brown-400">Carbs</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold text-orange-400 text-lg">Xg</p>
+                          <p className="text-[10px] uppercase tracking-widest text-brown-400">Fats</p>
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display, Chewy } from "next/font/google";
+import { Alfa_Slab_One, Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const chewy = Chewy({
+const alfaSlabOne = Alfa_Slab_One({
   variable: "--font-logo",
   subsets: ["latin"],
   weight: ["400"],
@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${chewy.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${alfaSlabOne.variable} antialiased`}
       >
         <CartProvider>
           <Navbar />

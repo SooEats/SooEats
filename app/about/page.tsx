@@ -17,19 +17,19 @@ const cards = [
     title: 'Our Mission',
     description: 'Discover what drives us to serve fresh, healthy food every single day.',
     href: '/about/mission',
-    image: 'https://picsum.photos/seed/mission-card/600/800',
+    image: '/mission.png',
   },
   {
     title: 'Our Vision',
     description: 'Learn about our goals for the future of healthy, accessible eating.',
     href: '/about/vision',
-    image: 'https://picsum.photos/seed/vision-card/600/800',
+    image: '/vision_banner.jpg',
   },
   {
     title: 'Our Story',
     description: "Find out how SOOEATS came to be — and where we're headed.",
     href: '/about/story',
-    image: 'https://picsum.photos/seed/story-card/600/800',
+    image: '/story.png',
   },
 ];
 

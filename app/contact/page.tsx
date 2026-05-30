@@ -18,9 +18,9 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const contactInfo = [
-  { Icon: Phone,     label: 'Phone',     value: '(555) 123-4567',        href: 'tel:5551234567' },
-  { Icon: Mail,      label: 'Email',     value: 'hello@cafe4good.com',   href: 'mailto:hello@cafe4good.com' },
-  { Icon: Instagram, label: 'Instagram', value: '@Soo__Eats__',          href: 'https://instagram.com/Soo__Eats__' },
+  { Icon: Phone,     label: 'Phone',     value: '705-975-7396',          href: 'tel:7059757396' },
+  { Icon: Mail,      label: 'Email',     value: 'sooeats1@gmail.com',    href: 'mailto:sooeats1@gmail.com' },
+  { Icon: Instagram, label: 'Instagram', value: '@soo__eats_',           href: 'https://instagram.com/soo__eats_' },
   { Icon: MapPin,    label: 'Location',  value: 'Coming Soon',           href: '#' },
 ];
 

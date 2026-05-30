@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAuth } from "@/server/auth/middleware/require-auth.middleware";
 import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.service";
 import { listOrdersForUser } from "@/server/orders/services/order.service";
+import { formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,9 @@ export default async function OrdersPage() {
                 <div className="text-left sm:text-right">
                   <p className="font-bold text-brown-900">${order.total.toFixed(2)}</p>
                   <p className="text-xs uppercase tracking-widest text-orange-500">{order.status}</p>
+                  <p className={`text-xs uppercase tracking-widest ${getPaymentStatusTone(order.paymentStatus)}`}>
+                    Payment: {formatPaymentStatus(order.paymentStatus)}
+                  </p>
                 </div>
               </Link>
             ))}

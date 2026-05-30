@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentAppUser } from "@/server/auth/services/current-app-user.service";
-import { createOrderFromActiveCart, listOrdersForUser } from "@/server/orders/services/order.service";
+import { listOrdersForUser } from "@/server/orders/services/order.service";
+import { createStripeCheckoutForNewOrder } from "@/server/payments/services/stripe-payment.service";
 
 export async function GET() {
   const user = await getCurrentAppUser();
@@ -51,14 +52,22 @@ export async function POST(request: Request) {
       : undefined;
 
   try {
-    const order = await createOrderFromActiveCart(user.id, {
+    const checkout = await createStripeCheckoutForNewOrder(user.id, {
       customerName: body.customerName,
       customerEmail: body.customerEmail,
       customerPhone: body.customerPhone,
       notes: body.notes,
       address,
     });
-    return NextResponse.json({ order }, { status: 201 });
+
+    return NextResponse.json(
+      {
+        order: checkout.order,
+        checkoutUrl: checkout.checkoutUrl,
+        checkoutSessionId: checkout.sessionId,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to create order" },

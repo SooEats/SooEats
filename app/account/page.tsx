@@ -2,6 +2,7 @@ import Link from "next/link";
 import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.service";
 import { requireAuth } from "@/server/auth/middleware/require-auth.middleware";
 import { listOrdersForUser } from "@/server/orders/services/order.service";
+import { formatPaymentStatus } from "@/lib/orders/payment-status";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,12 @@ export default async function AccountPage() {
               {recentOrders.map((order) => (
                 <Link key={order.id} href={`/orders/${order.id}`} className="flex justify-between gap-4 bg-white px-4 py-3 text-sm transition-colors hover:bg-orange-50">
                   <span className="font-medium text-brown-900">Order #{order.id.slice(-8)}</span>
-                  <span className="text-brown-500">${order.total.toFixed(2)}</span>
+                  <span className="text-right">
+                    <span className="block text-brown-500">${order.total.toFixed(2)}</span>
+                    <span className="block text-[10px] uppercase tracking-widest text-orange-600">
+                      {formatPaymentStatus(order.paymentStatus)}
+                    </span>
+                  </span>
                 </Link>
               ))}
             </div>

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { requireAuth } from "@/server/auth/middleware/require-auth.middleware";
 import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.service";
 import { getOrderForUser } from "@/server/orders/services/order.service";
+import { RetryPaymentButton } from "@/components/orders/retry-payment-button";
+import { canRetryPayment, formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
 
 type PageProps = {
   params: Promise<{ orderId: string }>;
@@ -46,10 +48,17 @@ export default async function OrderDetailPage({ params }: PageProps) {
             <div className="flex justify-between"><dt>Subtotal</dt><dd>${order.subtotal.toFixed(2)}</dd></div>
             <div className="flex justify-between"><dt>Tax</dt><dd>${order.tax.toFixed(2)}</dd></div>
             <div className="flex justify-between"><dt>Delivery</dt><dd>${order.deliveryFee.toFixed(2)}</dd></div>
+            <div className="flex justify-between"><dt>Payment status</dt><dd className={getPaymentStatusTone(order.paymentStatus)}>{formatPaymentStatus(order.paymentStatus)}</dd></div>
+            <div className="flex justify-between"><dt>Currency</dt><dd className="uppercase">{order.currency}</dd></div>
+            {order.paidAt ? (
+              <div className="flex justify-between"><dt>Paid at</dt><dd>{new Date(order.paidAt).toLocaleString()}</dd></div>
+            ) : null}
             <div className="flex justify-between border-t border-brown-100 pt-4 text-xl font-bold text-brown-900">
               <dt>Total</dt><dd>${order.total.toFixed(2)}</dd>
             </div>
           </dl>
+
+          {canRetryPayment(order.paymentStatus) ? <RetryPaymentButton orderId={order.id} /> : null}
         </div>
       </section>
     </main>

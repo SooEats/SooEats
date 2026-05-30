@@ -19,7 +19,7 @@ export default function MissionPage() {
       <section className="relative h-[45vh] min-h-[350px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://picsum.photos/seed/mission-food/1600/800"
+            src="/mission_banner.jpg"
             alt="Our mission"
             fill
             className="object-cover"
@@ -59,7 +59,7 @@ export default function MissionPage() {
             </div>
             <div className="relative aspect-[4/5] w-full overflow-hidden">
               <Image
-                src="https://picsum.photos/seed/mission-detail/800/1000"
+                src="/mission.png"
                 alt="Our mission in action"
                 fill
                 className="object-cover"
@@ -71,7 +71,7 @@ export default function MissionPage() {
           <motion.div {...fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div className="relative aspect-[4/3] w-full overflow-hidden">
               <Image
-                src="https://picsum.photos/seed/mission-team/800/600"
+                src="/mission2.png"
                 alt="Our team"
                 fill
                 className="object-cover"

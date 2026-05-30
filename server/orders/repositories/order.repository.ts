@@ -10,14 +10,22 @@ export function getOrderRepository() {
       return prisma.order.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
-        include: { items: true, address: true },
+        include: {
+          items: true,
+          address: true,
+          payments: { orderBy: { createdAt: "desc" }, take: 1 },
+        },
       });
     },
 
     findForUser(userId: string, orderId: string) {
       return prisma.order.findFirst({
         where: { id: orderId, userId },
-        include: { items: true, address: true },
+        include: {
+          items: true,
+          address: true,
+          payments: { orderBy: { createdAt: "desc" }, take: 1 },
+        },
       });
     },
   };

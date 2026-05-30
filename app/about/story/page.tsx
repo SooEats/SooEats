@@ -18,8 +18,8 @@ const timeline = [
     title: 'The Seed',
     desc: 'What started as an idea quickly turned into action through small pop-up experiences. These early moments were not just about serving food, but about understanding what people truly wanted—meals that are convenient, healthy, and still satisfying.',
     images: [
-      'https://picsum.photos/seed/story-2020a/600/400',
-      'https://picsum.photos/seed/story-2020b/600/400',
+      '/story.png',
+      '/story.png',
     ],
   },
   {
@@ -27,8 +27,8 @@ const timeline = [
     title: 'Finding Our Footing',
     desc: 'Through these pop-ups and community interactions, SOO EATS began shaping its identity. Each event became an opportunity to refine recipes, improve operations, and build genuine connections with people who believed in the idea.',
     images: [
-      'https://picsum.photos/seed/story-2022a/600/400',
-      'https://picsum.photos/seed/story-2022b/600/400',
+      '/story.png',
+      '/story.png',
     ],
   },
   {
@@ -36,8 +36,8 @@ const timeline = [
     title: 'Growing Forward',
     desc: 'Today, SOO EATS is evolving into more than just a food concept. With a focus on community, collaboration, and accessibility, we are building a foundation for something bigger—creating a system where healthier food options are easier to find, trust, and enjoy.',
     images: [
-      'https://picsum.photos/seed/story-2024a/600/400',
-      'https://picsum.photos/seed/story-2024b/600/400',
+      '/story.png',
+      '/story.png',
     ],
   },
 ];
@@ -49,7 +49,7 @@ export default function StoryPage() {
       <section className="relative h-[45vh] min-h-[350px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://picsum.photos/seed/story-cafe/1600/800"
+            src="/story.png"
             alt="Our story"
             fill
             className="object-cover"

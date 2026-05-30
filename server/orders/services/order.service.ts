@@ -34,9 +34,13 @@ function roundMoney(value: number) {
 function serializeOrder(order: Awaited<ReturnType<ReturnType<typeof getOrderRepository>["findForUser"]>>) {
   if (!order) return null;
 
+  const latestPayment = order.payments[0] ?? null;
+
   return {
     id: order.id,
     status: order.status,
+    paymentStatus: order.paymentStatus,
+    currency: order.currency,
     subtotal: toNumber(order.subtotal),
     tax: toNumber(order.tax),
     deliveryFee: toNumber(order.deliveryFee),
@@ -45,8 +49,27 @@ function serializeOrder(order: Awaited<ReturnType<ReturnType<typeof getOrderRepo
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
     notes: order.notes,
+    paidAt: order.paidAt?.toISOString() ?? null,
+    stripeCheckoutSessionId: order.stripeCheckoutSessionId,
+    stripePaymentIntentId: order.stripePaymentIntentId,
     createdAt: order.createdAt.toISOString(),
     address: order.address,
+    payment: latestPayment
+      ? {
+          id: latestPayment.id,
+          provider: latestPayment.provider,
+          status: latestPayment.status,
+          amount: toNumber(latestPayment.amount),
+          currency: latestPayment.currency,
+          stripeCheckoutSessionId: latestPayment.stripeCheckoutSessionId,
+          stripePaymentIntentId: latestPayment.stripePaymentIntentId,
+          failureCode: latestPayment.failureCode,
+          failureMessage: latestPayment.failureMessage,
+          paidAt: latestPayment.paidAt?.toISOString() ?? null,
+          refundedAt: latestPayment.refundedAt?.toISOString() ?? null,
+          createdAt: latestPayment.createdAt.toISOString(),
+        }
+      : null,
     items: order.items.map((item) => ({
       id: item.id,
       menuItemId: item.menuItemId,
@@ -101,6 +124,8 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
     const createdOrder = await tx.order.create({
       data: {
         userId,
+        paymentStatus: "REQUIRES_PAYMENT",
+        currency: "usd",
         subtotal,
         tax,
         deliveryFee,
@@ -123,7 +148,11 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
           }),
         },
       },
-      include: { items: true, address: true },
+      include: {
+        items: true,
+        address: true,
+        payments: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
     });
 
     await tx.cart.update({

@@ -19,7 +19,7 @@ export default function VisionPage() {
       <section className="relative h-[45vh] min-h-[350px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://picsum.photos/seed/vision-cafe/1600/800"
+            src="/vision_banner.jpg"
             alt="Our vision"
             fill
             className="object-cover"
@@ -58,7 +58,7 @@ export default function VisionPage() {
           <motion.div {...fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
             <div className="relative aspect-[4/3] w-full overflow-hidden">
               <Image
-                src="https://picsum.photos/seed/vision-future1/800/600"
+                src="/vision_banner.jpg"
                 alt="Our vision for the future"
                 fill
                 className="object-cover"
@@ -66,7 +66,7 @@ export default function VisionPage() {
             </div>
             <div className="relative aspect-[4/3] w-full overflow-hidden">
               <Image
-                src="https://picsum.photos/seed/vision-future2/800/600"
+                src="/vision_banner.jpg"
                 alt="Growing community"
                 fill
                 className="object-cover"

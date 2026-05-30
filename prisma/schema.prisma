@@ -33,6 +33,19 @@ enum OrderStatus {
   COMPLETED
 }
 
+enum PaymentProvider {
+  STRIPE
+}
+
+enum PaymentStatus {
+  REQUIRES_PAYMENT
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELED
+  REFUNDED
+}
+
 model User {
   id             String   @id @default(cuid())
   supabaseUserId String   @unique
@@ -48,6 +61,7 @@ model User {
   addresses Address[]
   carts     Cart[]
   orders    Order[]
+  payments  Payment[]
 
   @@index([email])
 }
@@ -129,6 +143,8 @@ model Order {
   id            String      @id @default(cuid())
   userId        String
   status        OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(REQUIRES_PAYMENT)
+  currency      String      @default("usd")
   subtotal      Decimal     @db.Decimal(10, 2)
   tax           Decimal     @db.Decimal(10, 2)
   deliveryFee   Decimal     @db.Decimal(10, 2)
@@ -138,15 +154,20 @@ model Order {
   customerPhone String?
   addressId     String?
   notes         String?
+  paidAt        DateTime?
+  stripeCheckoutSessionId String? @unique
+  stripePaymentIntentId   String? @unique
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   address Address?    @relation(fields: [addressId], references: [id], onDelete: SetNull)
   items   OrderItem[]
+  payments Payment[]
 
   @@index([userId, createdAt])
   @@index([status])
+  @@index([paymentStatus])
 }
 
 model OrderItem {
@@ -165,4 +186,29 @@ model OrderItem {
 
   @@index([orderId])
   @@index([menuItemId])
+}
+
+model Payment {
+  id                      String          @id @default(cuid())
+  orderId                 String
+  userId                  String
+  provider                PaymentProvider @default(STRIPE)
+  status                  PaymentStatus   @default(REQUIRES_PAYMENT)
+  amount                  Decimal         @db.Decimal(10, 2)
+  currency                String          @default("usd")
+  stripeCheckoutSessionId String?         @unique
+  stripePaymentIntentId   String?         @unique
+  failureCode             String?
+  failureMessage          String?
+  paidAt                  DateTime?
+  refundedAt              DateTime?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@index([userId, createdAt])
+  @@index([status])
 }

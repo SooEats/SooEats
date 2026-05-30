@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,7 +37,7 @@ export default function CheckoutPage() {
     });
 
     const payload = (await response.json().catch(() => null)) as
-      | { order?: { id: string }; error?: string }
+      | { order?: { id: string }; checkoutUrl?: string | null; error?: string }
       | null;
 
     setIsSubmitting(false);
@@ -47,7 +47,11 @@ export default function CheckoutPage() {
       return;
     }
 
-    clearCart();
+    if (payload.checkoutUrl) {
+      window.location.assign(payload.checkoutUrl);
+      return;
+    }
+
     router.push(`/orders/${payload.order.id}`);
   }
 
@@ -82,7 +86,7 @@ export default function CheckoutPage() {
             disabled={items.length === 0 || isSubmitting}
             className="mt-8 w-full bg-brown-900 px-8 py-4 text-sm font-semibold uppercase tracking-widest text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isSubmitting ? 'Placing order...' : 'Place order'}
+            {isSubmitting ? 'Redirecting to payment...' : 'Pay now'}
           </Button>
         </form>
 

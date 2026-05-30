@@ -110,9 +110,9 @@ export default function Home() {
       
       {/* Global Watermark Logo - Fixed behind content on scroll */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.08] z-0">
-        <div className="relative w-[150vw] h-[150vw] max-w-[1200px] max-h-[1200px] rotate-[-15deg]">
+        <div className="relative w-[68vw] h-[68vw] max-w-[540px] max-h-[540px] rotate-[-15deg]">
           <Image
-            src="/logo.jpeg"
+            src="/newLogo.png"
             alt=""
             fill
             className="object-contain"
@@ -140,10 +140,10 @@ export default function Home() {
           }}
         >
           {/* Section-specific Watermark for Hero (since Hero background is opaque) */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.12]">
-            <div className="relative w-[120vw] h-[120vw] max-w-[1000px] max-h-[1000px] rotate-[-15deg] blur-[1px]">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.1]">
+            <div className="relative w-[82vw] h-[82vw] max-w-[680px] max-h-[680px] rotate-[-15deg] blur-[2.5px] right-5 -top-6">
               <Image
-                src="/logo.jpeg"
+                src="/newLogo.png"
                 alt=""
                 fill
                 className="object-contain"
