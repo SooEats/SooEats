@@ -30,7 +30,7 @@ export const menuItems: FoodItem[] = [
     id: 'protein-pancakes',
     name: 'Protein Pancake',
     description: '3 fluffy high protein pancakes serve with maple syrup',
-    price: 12.99,
+    price: 10.99,
     image: '/menu/pancake.jpeg',
     serving: '3 pancakes',
     macros: { calories: 778, protein: 64, carbs: 91, fats: 16 },

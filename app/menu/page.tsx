@@ -38,6 +38,10 @@ function getVariantLabel(item: FoodItem) {
   return item.name.match(/Regular|Large/i)?.[0] ?? 'Add';
 }
 
+function isComingSoon(item: FoodItem) {
+  return item.macros.calories === 0 && !item.id.startsWith('protein-coffee');
+}
+
 export default function MenuPage() {
   const { addItem } = useCart();
   const menuItems = useMenuItems();
@@ -103,7 +107,8 @@ export default function MenuPage() {
                     ?.map((variantId) => menuItems.find((candidate) => candidate.id === variantId))
                     .filter((variant): variant is FoodItem => Boolean(variant));
                   const hasVariants = Boolean(variants?.length);
-                  const displayPrice = item.macros.calories === 0
+                  const comingSoon = isComingSoon(item);
+                  const displayPrice = comingSoon
                     ? null
                     : hasVariants
                     ? `$${variants![0].price.toFixed(2)} - $${variants![variants!.length - 1].price.toFixed(2)}`
@@ -124,11 +129,11 @@ export default function MenuPage() {
                           alt={getDisplayName(item)}
                           fill
                           className={`object-cover transition-transform duration-700 ${
-                            item.macros.calories === 0 ? 'blur-md' : 'group-hover:scale-105'
+                            comingSoon ? 'blur-md' : 'group-hover:scale-105'
                           }`}
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
-                        {item.macros.calories === 0 ? (
+                        {comingSoon ? (
                           <div className="absolute inset-0 bg-brown-900/20 flex items-center justify-center">
                             <span className="px-4 py-2 bg-white/90 text-brown-900 text-[10px] uppercase tracking-[0.2em] font-bold">
                               Coming Soon
@@ -161,7 +166,7 @@ export default function MenuPage() {
                       </div>
                       <div className="flex flex-wrap gap-6 mt-3 text-xs text-brown-400">
                         <span className="font-medium">{hasVariants ? variantServingLabels[item.id] : item.serving}</span>
-                        {item.macros.calories > 0 && !hasVariants && (
+                        {!comingSoon && item.macros.calories > 0 && !hasVariants && (
                           <>
                             <span>{item.macros.calories} cal</span>
                             <span>{item.macros.protein}g protein</span>
@@ -170,7 +175,7 @@ export default function MenuPage() {
                           </>
                         )}
                       </div>
-                      {item.macros.calories > 0 && (
+                      {!comingSoon && (
                         hasVariants ? (
                           <div className="mt-4 grid grid-cols-2 gap-3">
                             {variants!.map((variant) => (

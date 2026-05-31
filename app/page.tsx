@@ -22,6 +22,10 @@ const hiddenFeaturedItemIds = new Set([
   'protein-coffee-regular',
 ]);
 
+function isComingSoon(item: { id: string; macros: { calories: number } }) {
+  return item.macros.calories === 0 && !item.id.startsWith('protein-coffee');
+}
+
 function FeaturedItemsCarousel() {
   const { addItem } = useCart();
   const menuItems = useMenuItems();
@@ -76,10 +80,10 @@ function FeaturedItemsCarousel() {
                 alt={item.name}
                 fill
                 className={`object-cover transition-transform duration-700 ${
-                  item.macros.calories === 0 ? 'blur-md' : 'group-hover:scale-105'
+                  isComingSoon(item) ? 'blur-md' : 'group-hover:scale-105'
                 }`}
               />
-              {item.macros.calories === 0 ? (
+              {isComingSoon(item) ? (
                 <div className="absolute inset-0 bg-brown-900/20 flex items-center justify-center">
                   <span className="px-4 py-2 bg-white/90 text-brown-900 text-[10px] uppercase tracking-[0.2em] font-bold">
                     Coming Soon
@@ -100,7 +104,7 @@ function FeaturedItemsCarousel() {
                 <h3 className="font-display font-bold text-lg text-brown-900">{item.name}</h3>
                 <p className="text-brown-400 text-sm mt-1">{item.description}</p>
               </div>
-              {item.macros.calories > 0 && (
+              {!isComingSoon(item) && (
                 <span className="font-semibold text-orange-500 text-lg ml-4 shrink-0">
                   ${item.price.toFixed(2)}
                 </span>
