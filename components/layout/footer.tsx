@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, Mail, Instagram } from 'lucide-react';
+import { Phone, Mail, Instagram, MapPin } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -87,23 +87,27 @@ export function Footer() {
               Contact
             </h4>
             <div className="space-y-4 text-sm text-brown-400">
-              <a href="tel:5551234567" className="flex items-center justify-center md:justify-start gap-3 hover:text-orange-400 transition-colors duration-200">
+              <a href="tel:7059757396" className="flex items-center justify-center md:justify-start gap-3 hover:text-orange-400 transition-colors duration-200">
                 <Phone className="w-4 h-4 shrink-0" />
-                (555) 123-4567
+                705-975-7396
               </a>
-              <a href="mailto:hello@cafe4good.com" className="flex items-center justify-center md:justify-start gap-3 hover:text-orange-400 transition-colors duration-200">
+              <a href="mailto:sooeats1@gmail.com" className="flex items-center justify-center md:justify-start gap-3 hover:text-orange-400 transition-colors duration-200">
                 <Mail className="w-4 h-4 shrink-0" />
-                hello@cafe4good.com
+                sooeats1@gmail.com
               </a>
               <a
-                href="https://instagram.com/Soo__Eats__"
+                href="https://instagram.com/soo__eats_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center md:justify-start gap-3 hover:text-orange-400 transition-colors duration-200"
               >
                 <Instagram className="w-4 h-4 shrink-0" />
-                @Soo__Eats__
+                @soo__eats_
               </a>
+              <div className="flex items-center justify-center md:justify-start gap-3">
+                <MapPin className="w-4 h-4 shrink-0" />
+                Coming Soon
+              </div>
             </div>
           </div>
         </div>

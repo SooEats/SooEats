@@ -32,7 +32,7 @@ describe('Footer', () => {
 
   it('renders Instagram link', () => {
     render(<Footer />);
-    expect(screen.getByText('@Soo__Eats__')).toBeInTheDocument();
+    expect(screen.getByText('@soo__eats_')).toBeInTheDocument();
   });
 
   it('applies themed styling classes', () => {
