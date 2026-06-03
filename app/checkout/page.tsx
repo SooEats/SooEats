@@ -93,7 +93,7 @@ export default function CheckoutPage() {
               variant="ghost"
               disabled={items.length === 0 || isSubmitting}
               onClick={() => createOrder('STRIPE')}
-              className="w-full bg-brown-900 px-8 py-4 text-sm font-semibold uppercase tracking-widest text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full bg-brown-900 px-8 py-4 text-sm font-semibold uppercase tracking-widest text-black hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50 hover:text-orange-600 border-orange-600"
             >
               {isPayNowSubmitting ? 'Redirecting...' : 'Pay now'}
             </Button>
