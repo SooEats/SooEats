@@ -5,7 +5,7 @@ import { getCartRepository } from "@/server/cart/repositories/cart.repository";
 import { getOrderRepository } from "@/server/orders/repositories/order.repository";
 import { getStripeAccountSettings } from "@/server/payments/services/stripe-account.service";
 
-const DELIVERY_FEE = 4.99;
+const DELIVERY_FEE = 0;
 
 export type CreateOrderInput = {
   customerName: string;
