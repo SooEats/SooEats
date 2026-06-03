@@ -31,7 +31,7 @@ export default function CheckoutPage() {
           city: formData.get('city'),
           state: formData.get('state'),
           postalCode: formData.get('postalCode'),
-          country: formData.get('country') || 'US',
+          country: formData.get('country') || undefined,
         },
       }),
     });
@@ -75,7 +75,7 @@ export default function CheckoutPage() {
             <input name="city" required placeholder="City" className="px-4 py-3 text-sm" />
             <input name="state" required placeholder="State" className="px-4 py-3 text-sm" />
             <input name="postalCode" required placeholder="Postal code" className="px-4 py-3 text-sm" />
-            <input name="country" defaultValue="US" placeholder="Country" className="px-4 py-3 text-sm" />
+            <input name="country" placeholder="Country" className="px-4 py-3 text-sm" />
             <textarea name="notes" placeholder="Notes" className="min-h-28 px-4 py-3 text-sm sm:col-span-2" />
           </div>
 
@@ -107,7 +107,7 @@ export default function CheckoutPage() {
                 </div>
               ))}
               <div className="border-t border-brown-100 pt-4 text-sm text-brown-500">
-                Tax and delivery are calculated when the order is created.
+                Delivery is included before payment. Tax is calculated in Stripe Checkout.
               </div>
               <div className="flex justify-between text-xl font-bold text-brown-900">
                 <span>Subtotal</span>

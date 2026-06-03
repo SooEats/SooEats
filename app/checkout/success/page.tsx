@@ -1,11 +1,18 @@
 import Link from "next/link";
+import { getCurrentAppUser } from "@/server/auth/services/current-app-user.service";
+import { syncStripeCheckoutSessionForOrder } from "@/server/payments/services/stripe-payment.service";
 
 type PageProps = {
-  searchParams: Promise<{ order_id?: string }>;
+  searchParams: Promise<{ order_id?: string; session_id?: string }>;
 };
 
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
-  const { order_id: orderId } = await searchParams;
+  const { order_id: orderId, session_id: checkoutSessionId } = await searchParams;
+  const user = await getCurrentAppUser();
+
+  if (user && orderId && checkoutSessionId) {
+    await syncStripeCheckoutSessionForOrder(user.id, orderId, checkoutSessionId).catch(() => null);
+  }
 
   return (
     <main className="min-h-[70vh] px-4 py-20">

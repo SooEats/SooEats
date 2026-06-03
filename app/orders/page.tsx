@@ -3,6 +3,7 @@ import { requireAuth } from "@/server/auth/middleware/require-auth.middleware";
 import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.service";
 import { listOrdersForUser } from "@/server/orders/services/order.service";
 import { formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
+import { formatMoney } from "@/lib/format-money";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export default async function OrdersPage() {
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="font-bold text-brown-900">${order.total.toFixed(2)}</p>
+                  <p className="font-bold text-brown-900">{formatMoney(order.total, order.currency)}</p>
                   <p className="text-xs uppercase tracking-widest text-orange-500">{order.status}</p>
                   <p className={`text-xs uppercase tracking-widest ${getPaymentStatusTone(order.paymentStatus)}`}>
                     Payment: {formatPaymentStatus(order.paymentStatus)}

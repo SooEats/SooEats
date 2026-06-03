@@ -5,6 +5,7 @@ import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.ser
 import { getOrderForUser } from "@/server/orders/services/order.service";
 import { RetryPaymentButton } from "@/components/orders/retry-payment-button";
 import { canRetryPayment, formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
+import { formatMoney } from "@/lib/format-money";
 
 type PageProps = {
   params: Promise<{ orderId: string }>;
@@ -39,22 +40,22 @@ export default async function OrderDetailPage({ params }: PageProps) {
             {order.items.map((item) => (
               <div key={item.id} className="flex justify-between gap-4 border-b border-brown-100 pb-4 text-sm">
                 <span className="text-brown-700">{item.quantity} x {item.name}</span>
-                <span className="font-semibold text-brown-900">${item.lineTotal.toFixed(2)}</span>
+                <span className="font-semibold text-brown-900">{formatMoney(item.lineTotal, order.currency)}</span>
               </div>
             ))}
           </div>
 
           <dl className="mt-8 space-y-3 text-sm">
-            <div className="flex justify-between"><dt>Subtotal</dt><dd>${order.subtotal.toFixed(2)}</dd></div>
-            <div className="flex justify-between"><dt>Tax</dt><dd>${order.tax.toFixed(2)}</dd></div>
-            <div className="flex justify-between"><dt>Delivery</dt><dd>${order.deliveryFee.toFixed(2)}</dd></div>
+            <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatMoney(order.subtotal, order.currency)}</dd></div>
+            <div className="flex justify-between"><dt>Tax</dt><dd>{formatMoney(order.tax, order.currency)}</dd></div>
+            <div className="flex justify-between"><dt>Delivery</dt><dd>{formatMoney(order.deliveryFee, order.currency)}</dd></div>
             <div className="flex justify-between"><dt>Payment status</dt><dd className={getPaymentStatusTone(order.paymentStatus)}>{formatPaymentStatus(order.paymentStatus)}</dd></div>
             <div className="flex justify-between"><dt>Currency</dt><dd className="uppercase">{order.currency}</dd></div>
             {order.paidAt ? (
               <div className="flex justify-between"><dt>Paid at</dt><dd>{new Date(order.paidAt).toLocaleString()}</dd></div>
             ) : null}
             <div className="flex justify-between border-t border-brown-100 pt-4 text-xl font-bold text-brown-900">
-              <dt>Total</dt><dd>${order.total.toFixed(2)}</dd>
+              <dt>Total</dt><dd>{formatMoney(order.total, order.currency)}</dd>
             </div>
           </dl>
 

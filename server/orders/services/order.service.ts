@@ -3,8 +3,8 @@ import "server-only";
 import { getPrisma } from "@/lib/prisma";
 import { getCartRepository } from "@/server/cart/repositories/cart.repository";
 import { getOrderRepository } from "@/server/orders/repositories/order.repository";
+import { getStripeAccountSettings } from "@/server/payments/services/stripe-account.service";
 
-const TAX_RATE = 0.08;
 const DELIVERY_FEE = 4.99;
 
 export type CreateOrderInput = {
@@ -92,6 +92,7 @@ export async function getOrderForUser(userId: string, orderId: string) {
 
 export async function createOrderFromActiveCart(userId: string, input: CreateOrderInput) {
   const prisma = getPrisma();
+  const stripeSettings = await getStripeAccountSettings();
   const cart = await getCartRepository().findActiveCart(userId);
 
   if (!cart || cart.items.length === 0) {
@@ -101,7 +102,7 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
   const subtotal = roundMoney(
     cart.items.reduce((sum, item) => sum + toNumber(item.unitPrice) * item.quantity, 0)
   );
-  const tax = roundMoney(subtotal * TAX_RATE);
+  const tax = 0;
   const deliveryFee = subtotal > 0 ? DELIVERY_FEE : 0;
   const total = roundMoney(subtotal + tax + deliveryFee);
 
@@ -116,7 +117,7 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
             city: input.address.city,
             state: input.address.state,
             postalCode: input.address.postalCode,
-            country: input.address.country || "US",
+            country: input.address.country || stripeSettings.country,
           },
         })
       : null;
@@ -125,7 +126,7 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
       data: {
         userId,
         paymentStatus: "REQUIRES_PAYMENT",
-        currency: "usd",
+        currency: stripeSettings.currency,
         subtotal,
         tax,
         deliveryFee,

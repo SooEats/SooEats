@@ -5,6 +5,7 @@ import { getPrisma } from "@/lib/prisma";
 import { getStripeClient } from "@/lib/stripe";
 import { getSiteUrl } from "@/lib/supabase/env";
 import { createOrderFromActiveCart } from "@/server/orders/services/order.service";
+import { getStripeAccountSettings } from "@/server/payments/services/stripe-account.service";
 
 function toNumber(value: { toNumber?: () => number } | number) {
   return typeof value === "number" ? value : value.toNumber?.() ?? Number(value);
@@ -12,6 +13,10 @@ function toNumber(value: { toNumber?: () => number } | number) {
 
 function toStripeAmount(value: { toNumber?: () => number } | number) {
   return Math.round(toNumber(value) * 100);
+}
+
+function fromStripeAmount(value: number) {
+  return Math.round(value) / 100;
 }
 
 function resolveOrderIdFromSession(session: Stripe.Checkout.Session) {
@@ -61,11 +66,19 @@ export async function createStripeCheckoutForExistingOrder(userId: string, order
   }
 
   const siteUrl = getSiteUrl();
+  const stripeSettings = await getStripeAccountSettings();
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     client_reference_id: order.id,
     customer_email: order.customerEmail,
+    automatic_tax: {
+      enabled: true,
+    },
+    billing_address_collection: "required",
+    shipping_address_collection: {
+      allowed_countries: [stripeSettings.country as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry],
+    },
     success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
     cancel_url: `${siteUrl}/checkout/cancel?order_id=${order.id}`,
     metadata: {
@@ -83,20 +96,6 @@ export async function createStripeCheckoutForExistingOrder(userId: string, order
           },
         },
       })),
-      ...(toNumber(order.tax) > 0
-        ? [
-            {
-              quantity: 1,
-              price_data: {
-                currency: order.currency,
-                unit_amount: toStripeAmount(order.tax),
-                product_data: {
-                  name: "Tax",
-                },
-              },
-            },
-          ]
-        : []),
       ...(toNumber(order.deliveryFee) > 0
         ? [
             {
@@ -184,6 +183,34 @@ export async function handleStripeWebhookEvent(event: Stripe.Event) {
   }
 }
 
+export async function syncStripeCheckoutSessionForOrder(
+  userId: string,
+  orderId: string,
+  checkoutSessionId: string
+) {
+  const stripe = getStripeClient();
+  const session = await stripe.checkout.sessions.retrieve(checkoutSessionId);
+
+  if (resolveOrderIdFromSession(session) !== orderId || session.metadata?.userId !== userId) {
+    throw new Error("Checkout session does not match this order.");
+  }
+
+  await markOrderFromCheckoutSession(session);
+}
+
+async function syncCheckoutSessionForPaymentIntent(intent: Stripe.PaymentIntent) {
+  const stripe = getStripeClient();
+  const sessions = await stripe.checkout.sessions.list({
+    payment_intent: intent.id,
+    limit: 1,
+  });
+  const session = sessions.data[0];
+
+  if (session) {
+    await markOrderFromCheckoutSession(session);
+  }
+}
+
 async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
   const prisma = getPrisma();
   const orderId = resolveOrderIdFromSession(session);
@@ -192,6 +219,12 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
   const isPaid = session.payment_status === "paid";
   const paymentIntentId =
     typeof session.payment_intent === "string" ? session.payment_intent : null;
+  const tax = session.total_details?.amount_tax;
+  const total = session.amount_total;
+
+  if (tax === null || tax === undefined || total === null || total === undefined) {
+    return;
+  }
 
   await prisma.$transaction(async (tx) => {
     await tx.order.updateMany({
@@ -200,6 +233,8 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
         paymentStatus: isPaid ? "SUCCEEDED" : "PROCESSING",
         paidAt: isPaid ? new Date() : null,
         status: isPaid ? "CONFIRMED" : undefined,
+        tax: fromStripeAmount(tax),
+        total: fromStripeAmount(total),
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId: paymentIntentId,
       },
@@ -209,6 +244,7 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
       where: { stripeCheckoutSessionId: session.id },
       data: {
         status: isPaid ? "SUCCEEDED" : "PROCESSING",
+        amount: fromStripeAmount(total),
         paidAt: isPaid ? new Date() : null,
         stripePaymentIntentId: paymentIntentId,
       },
@@ -240,6 +276,8 @@ async function markOrderCanceledFromCheckoutSession(session: Stripe.Checkout.Ses
 }
 
 async function markOrderPaidFromPaymentIntent(intent: Stripe.PaymentIntent) {
+  await syncCheckoutSessionForPaymentIntent(intent);
+
   const prisma = getPrisma();
   const checkoutSessionId =
     typeof intent.metadata?.checkout_session_id === "string"

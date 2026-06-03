@@ -129,7 +129,7 @@ model Address {
   city       String
   state      String
   postalCode String
-  country    String   @default("US")
+  country    String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -144,7 +144,7 @@ model Order {
   userId        String
   status        OrderStatus @default(PENDING)
   paymentStatus PaymentStatus @default(REQUIRES_PAYMENT)
-  currency      String      @default("usd")
+  currency      String
   subtotal      Decimal     @db.Decimal(10, 2)
   tax           Decimal     @db.Decimal(10, 2)
   deliveryFee   Decimal     @db.Decimal(10, 2)
@@ -195,7 +195,7 @@ model Payment {
   provider                PaymentProvider @default(STRIPE)
   status                  PaymentStatus   @default(REQUIRES_PAYMENT)
   amount                  Decimal         @db.Decimal(10, 2)
-  currency                String          @default("usd")
+  currency                String
   stripeCheckoutSessionId String?         @unique
   stripePaymentIntentId   String?         @unique
   failureCode             String?
