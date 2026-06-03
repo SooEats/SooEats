@@ -61,6 +61,10 @@ export async function createStripeCheckoutForExistingOrder(userId: string, order
     throw new Error("This order has already been paid.");
   }
 
+  if (order.paymentMethod !== "STRIPE") {
+    throw new Error("This order is set for pay on delivery.");
+  }
+
   if (order.items.length === 0) {
     throw new Error("Order has no items.");
   }

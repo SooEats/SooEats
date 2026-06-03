@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentAppUser } from "@/server/auth/services/current-app-user.service";
-import { listOrdersForUser } from "@/server/orders/services/order.service";
+import { createPayOnDeliveryOrder, listOrdersForUser } from "@/server/orders/services/order.service";
 import { createStripeCheckoutForNewOrder } from "@/server/payments/services/stripe-payment.service";
 
 export async function GET() {
@@ -16,48 +16,34 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = (await request.json().catch(() => null)) as {
-    customerName?: string;
-    customerEmail?: string;
-    customerPhone?: string;
-    notes?: string;
-    address?: {
-      label?: string;
-      line1?: string;
-      line2?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-    };
+    paymentMethod?: "STRIPE" | "PAY_ON_DELIVERY";
   } | null;
 
-  if (!body?.customerName || !body.customerEmail) {
+  const paymentMethod = body?.paymentMethod ?? "STRIPE";
+  const customerName = user.name || user.email.split("@")[0] || "Customer";
+  const customerEmail = user.email;
+
+  if (paymentMethod !== "STRIPE" && paymentMethod !== "PAY_ON_DELIVERY") {
     return NextResponse.json(
-      { error: "customerName and customerEmail are required" },
+      { error: "Invalid payment method" },
       { status: 400 }
     );
   }
 
-  const address =
-    body.address?.line1 && body.address.city && body.address.state && body.address.postalCode
-      ? {
-          label: body.address.label,
-          line1: body.address.line1,
-          line2: body.address.line2,
-          city: body.address.city,
-          state: body.address.state,
-          postalCode: body.address.postalCode,
-          country: body.address.country,
-        }
-      : undefined;
-
   try {
+    if (paymentMethod === "PAY_ON_DELIVERY") {
+      const order = await createPayOnDeliveryOrder(user.id, {
+        customerName,
+        customerEmail,
+      });
+
+      return NextResponse.json({ order, checkoutUrl: null, checkoutSessionId: null }, { status: 201 });
+    }
+
     const checkout = await createStripeCheckoutForNewOrder(user.id, {
-      customerName: body.customerName,
-      customerEmail: body.customerEmail,
-      customerPhone: body.customerPhone,
-      notes: body.notes,
-      address,
+      customerName,
+      customerEmail,
+      paymentMethod: "STRIPE",
     });
 
     return NextResponse.json(

@@ -37,6 +37,11 @@ enum PaymentProvider {
   STRIPE
 }
 
+enum PaymentMethod {
+  STRIPE
+  PAY_ON_DELIVERY
+}
+
 enum PaymentStatus {
   REQUIRES_PAYMENT
   PROCESSING
@@ -144,6 +149,7 @@ model Order {
   userId        String
   status        OrderStatus @default(PENDING)
   paymentStatus PaymentStatus @default(REQUIRES_PAYMENT)
+  paymentMethod PaymentMethod @default(STRIPE)
   currency      String
   subtotal      Decimal     @db.Decimal(10, 2)
   tax           Decimal     @db.Decimal(10, 2)
@@ -168,6 +174,7 @@ model Order {
   @@index([userId, createdAt])
   @@index([status])
   @@index([paymentStatus])
+  @@index([paymentMethod])
 }
 
 model OrderItem {

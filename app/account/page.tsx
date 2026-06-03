@@ -71,6 +71,9 @@ export default async function AccountPage() {
                   <span className="font-medium text-brown-900">Order #{order.id.slice(-8)}</span>
                   <span className="text-right">
                     <span className="block text-brown-500">{formatMoney(order.total, order.currency)}</span>
+                    <span className="block text-[10px] uppercase tracking-widest text-brown-400">
+                      {order.paymentMethod === "PAY_ON_DELIVERY" ? "Pay on delivery" : "Pay now"}
+                    </span>
                     <span className="block text-[10px] uppercase tracking-widest text-orange-600">
                       {formatPaymentStatus(order.paymentStatus)}
                     </span>

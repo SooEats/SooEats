@@ -12,6 +12,7 @@ export type CreateOrderInput = {
   customerEmail: string;
   customerPhone?: string;
   notes?: string;
+  paymentMethod?: "STRIPE" | "PAY_ON_DELIVERY";
   address?: {
     label?: string;
     line1: string;
@@ -40,6 +41,7 @@ function serializeOrder(order: Awaited<ReturnType<ReturnType<typeof getOrderRepo
     id: order.id,
     status: order.status,
     paymentStatus: order.paymentStatus,
+    paymentMethod: order.paymentMethod,
     currency: order.currency,
     subtotal: toNumber(order.subtotal),
     tax: toNumber(order.tax),
@@ -105,6 +107,7 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
   const tax = 0;
   const deliveryFee = subtotal > 0 ? DELIVERY_FEE : 0;
   const total = roundMoney(subtotal + tax + deliveryFee);
+  const paymentMethod = input.paymentMethod ?? "STRIPE";
 
   const order = await prisma.$transaction(async (tx) => {
     const address = input.address
@@ -125,7 +128,9 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
     const createdOrder = await tx.order.create({
       data: {
         userId,
+        status: paymentMethod === "PAY_ON_DELIVERY" ? "CONFIRMED" : "PENDING",
         paymentStatus: "REQUIRES_PAYMENT",
+        paymentMethod,
         currency: stripeSettings.currency,
         subtotal,
         tax,
@@ -165,4 +170,11 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
   });
 
   return serializeOrder(order);
+}
+
+export async function createPayOnDeliveryOrder(userId: string, input: Omit<CreateOrderInput, "paymentMethod">) {
+  return createOrderFromActiveCart(userId, {
+    ...input,
+    paymentMethod: "PAY_ON_DELIVERY",
+  });
 }

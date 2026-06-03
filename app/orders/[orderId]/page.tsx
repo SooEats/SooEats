@@ -49,6 +49,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatMoney(order.subtotal, order.currency)}</dd></div>
             <div className="flex justify-between"><dt>Tax</dt><dd>{formatMoney(order.tax, order.currency)}</dd></div>
             <div className="flex justify-between"><dt>Delivery</dt><dd>{formatMoney(order.deliveryFee, order.currency)}</dd></div>
+            <div className="flex justify-between"><dt>Payment method</dt><dd>{order.paymentMethod === "PAY_ON_DELIVERY" ? "Pay on delivery" : "Pay now"}</dd></div>
             <div className="flex justify-between"><dt>Payment status</dt><dd className={getPaymentStatusTone(order.paymentStatus)}>{formatPaymentStatus(order.paymentStatus)}</dd></div>
             <div className="flex justify-between"><dt>Currency</dt><dd className="uppercase">{order.currency}</dd></div>
             {order.paidAt ? (
@@ -59,7 +60,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             </div>
           </dl>
 
-          {canRetryPayment(order.paymentStatus) ? <RetryPaymentButton orderId={order.id} /> : null}
+          {order.paymentMethod === "STRIPE" && canRetryPayment(order.paymentStatus) ? <RetryPaymentButton orderId={order.id} /> : null}
         </div>
       </section>
     </main>

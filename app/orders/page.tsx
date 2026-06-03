@@ -42,6 +42,9 @@ export default async function OrdersPage() {
                 <div className="text-left sm:text-right">
                   <p className="font-bold text-brown-900">{formatMoney(order.total, order.currency)}</p>
                   <p className="text-xs uppercase tracking-widest text-orange-500">{order.status}</p>
+                  <p className="text-xs uppercase tracking-widest text-brown-400">
+                    {order.paymentMethod === "PAY_ON_DELIVERY" ? "Pay on delivery" : "Pay now"}
+                  </p>
                   <p className={`text-xs uppercase tracking-widest ${getPaymentStatusTone(order.paymentStatus)}`}>
                     Payment: {formatPaymentStatus(order.paymentStatus)}
                   </p>
