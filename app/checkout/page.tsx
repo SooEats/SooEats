@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { DELIVERY_FEE } from '@/lib/pricing';
 
 type PaymentMethod = 'STRIPE' | 'PAY_ON_DELIVERY';
 
@@ -44,6 +45,8 @@ export default function CheckoutPage() {
 
   const isPayNowSubmitting = submittingMethod === 'STRIPE';
   const isSubmitting = submittingMethod !== null;
+  const deliveryFee = items.length > 0 ? DELIVERY_FEE : 0;
+  const totalWithDelivery = totalPrice + deliveryFee;
 
   return (
     <main className="min-h-[75vh] px-4 py-20">
@@ -71,11 +74,19 @@ export default function CheckoutPage() {
                 </div>
               ))}
               <div className="border-t border-brown-100 pt-4 text-sm text-brown-500">
-                Delivery is included before payment. Tax is calculated in Stripe Checkout for pay now orders.
+                Tax is calculated in Stripe Checkout for pay now orders.
               </div>
-              <div className="flex justify-between text-xl font-bold text-brown-900">
+              <div className="flex justify-between text-sm text-brown-600">
                 <span>Subtotal</span>
                 <span>${totalPrice.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-brown-600">
+                <span>Delivery</span>
+                <span>${deliveryFee.toFixed(2)} CAD</span>
+              </div>
+              <div className="flex justify-between border-t border-brown-100 pt-4 text-xl font-bold text-brown-900">
+                <span>Total before tax</span>
+                <span>${totalWithDelivery.toFixed(2)}</span>
               </div>
             </div>
           )}

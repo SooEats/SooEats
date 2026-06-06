@@ -22,8 +22,8 @@ const hiddenFeaturedItemIds = new Set([
   'protein-coffee-regular',
 ]);
 
-function isComingSoon(item: { id: string; macros: { calories: number } }) {
-  return item.macros.calories === 0 && !item.id.startsWith('protein-coffee');
+function isComingSoon(item: { isAvailable?: boolean; macros: { calories: number } }) {
+  return item.isAvailable === false || item.macros.calories === 0;
 }
 
 function FeaturedItemsCarousel() {

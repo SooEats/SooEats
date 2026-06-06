@@ -4,8 +4,7 @@ import { getPrisma } from "@/lib/prisma";
 import { getCartRepository } from "@/server/cart/repositories/cart.repository";
 import { getOrderRepository } from "@/server/orders/repositories/order.repository";
 import { getStripeAccountSettings } from "@/server/payments/services/stripe-account.service";
-
-const DELIVERY_FEE = 0;
+import { DELIVERY_FEE } from "@/lib/pricing";
 
 export type CreateOrderInput = {
   customerName: string;

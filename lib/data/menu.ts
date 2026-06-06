@@ -14,6 +14,7 @@ export interface FoodItem {
     fats: number;
   };
   category: 'breakfast' | 'lunch' | 'drinks' | 'dessert';
+  isAvailable?: boolean;
 }
 
 export interface Product {
@@ -141,6 +142,7 @@ export const menuItems: FoodItem[] = [
     serving: 'Large',
     macros: { calories: 0, protein: 0, carbs: 0, fats: 0 },
     category: 'drinks',
+    isAvailable: false,
   },
   {
     id: 'protein-coffee-regular',
@@ -151,5 +153,6 @@ export const menuItems: FoodItem[] = [
     serving: 'Regular',
     macros: { calories: 0, protein: 0, carbs: 0, fats: 0 },
     category: 'drinks',
+    isAvailable: false,
   },
 ];

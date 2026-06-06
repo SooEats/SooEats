@@ -39,7 +39,7 @@ function getVariantLabel(item: FoodItem) {
 }
 
 function isComingSoon(item: FoodItem) {
-  return item.macros.calories === 0 && !item.id.startsWith('protein-coffee');
+  return item.isAvailable === false || item.macros.calories === 0;
 }
 
 export default function MenuPage() {

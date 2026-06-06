@@ -6,12 +6,12 @@ import { mapMenuItemToFoodItem } from "@/server/menu/services/menu.mapper";
 
 export async function listMenuItems() {
   try {
-    const items = await getMenuRepository().listAvailable();
+    const items = await getMenuRepository().listAll();
     return items.map(mapMenuItemToFoodItem);
   } catch {
     return menuItems.map((item, sortOrder) => ({
       ...item,
-      isAvailable: true,
+      isAvailable: item.isAvailable ?? true,
       sortOrder,
     }));
   }
