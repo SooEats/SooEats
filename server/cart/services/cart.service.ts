@@ -38,11 +38,21 @@ export async function addCartItem(userId: string, menuItemSlug: string) {
   const prisma = getPrisma();
   const cart = await getCartRepository().getOrCreateActiveCart(userId);
   const menuItem = await prisma.menuItem.findFirst({
-    where: { slug: menuItemSlug, isAvailable: true },
+    where: {
+      slug: menuItemSlug,
+      archivedAt: null,
+      isAvailable: true,
+      OR: [{ stockQuantity: null }, { stockQuantity: { gt: 0 } }],
+    },
   });
 
   if (!menuItem) {
     throw new Error("Menu item is unavailable.");
+  }
+
+  const existingItem = cart.items.find((item) => item.menuItemId === menuItem.id);
+  if (menuItem.stockQuantity !== null && (existingItem?.quantity ?? 0) >= menuItem.stockQuantity) {
+    throw new Error("No more stock is available for this item.");
   }
 
   await prisma.cartItem.upsert({
@@ -70,6 +80,14 @@ export async function updateCartItemQuantity(userId: string, menuItemSlug: strin
   if (quantity <= 0) {
     await prisma.cartItem.delete({ where: { id: item.id } });
   } else {
+    if (
+      !item.menuItem.isAvailable ||
+      item.menuItem.archivedAt ||
+      (item.menuItem.stockQuantity !== null && quantity > item.menuItem.stockQuantity)
+    ) {
+      throw new Error("The requested quantity is unavailable.");
+    }
+
     await prisma.cartItem.update({
       where: { id: item.id },
       data: { quantity },

@@ -14,15 +14,17 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const redirects = getAuthRedirects();
-  const next = safeRedirectPath(searchParams.get("next"), redirects.afterLogin);
+  const requestedNext = searchParams.get("next");
+  const next = safeRedirectPath(requestedNext, redirects.afterLogin);
 
   if (!code) {
     return NextResponse.redirect(`${origin}${redirects.onError}?reason=missing_code`);
   }
 
   try {
-    await exchangeAuthCodeForSessionAndSyncUser(code);
-    return NextResponse.redirect(`${origin}${next}`);
+    const appUser = await exchangeAuthCodeForSessionAndSyncUser(code);
+    const destination = requestedNext ? next : appUser.role === "ADMIN" ? "/admin" : next;
+    return NextResponse.redirect(`${origin}${destination}`);
   } catch {
     return NextResponse.redirect(`${origin}${redirects.onError}?reason=user_sync_failed`);
   }

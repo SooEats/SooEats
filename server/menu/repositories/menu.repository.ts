@@ -8,20 +8,30 @@ export function getMenuRepository() {
   return {
     listAll() {
       return prisma.menuItem.findMany({
+        where: { archivedAt: null },
         orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
       });
     },
 
     listAvailable() {
       return prisma.menuItem.findMany({
-        where: { isAvailable: true },
+        where: {
+          archivedAt: null,
+          isAvailable: true,
+          OR: [{ stockQuantity: null }, { stockQuantity: { gt: 0 } }],
+        },
         orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
       });
     },
 
     findAvailableBySlug(slug: string) {
       return prisma.menuItem.findFirst({
-        where: { slug, isAvailable: true },
+        where: {
+          slug,
+          archivedAt: null,
+          isAvailable: true,
+          OR: [{ stockQuantity: null }, { stockQuantity: { gt: 0 } }],
+        },
       });
     },
   };

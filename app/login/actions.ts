@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAuthRedirects } from "@/lib/supabase/env";
 import { signInWithEmail } from "@/server/auth/controllers/email-auth.controller";
 import { signInWithGoogle } from "@/server/auth/controllers/social-auth.controller";
+import { getCurrentAppUser } from "@/server/auth/services/current-app-user.service";
 import type { AuthActionResult } from "@/server/auth/types/auth.types";
 import { loginSchema } from "@/server/auth/validators/auth.schema";
 
@@ -45,7 +46,12 @@ export async function loginWithEmailAction(
     };
   }
 
-  redirect(parsed.data.next || getAuthRedirects().afterLogin);
+  if (parsed.data.next) {
+    redirect(parsed.data.next);
+  }
+
+  const appUser = await getCurrentAppUser();
+  redirect(appUser?.role === "ADMIN" ? "/admin" : getAuthRedirects().afterLogin);
 }
 
 export async function loginWithGoogleAction(formData: FormData) {

@@ -34,7 +34,10 @@ export function mapMenuItemToFoodItem(item: MenuItem): PublicMenuItem {
       carbs: toNumber(item.carbs),
       fats: toNumber(item.fats),
     },
-    isAvailable: item.isAvailable,
+    isAvailable:
+      item.isAvailable &&
+      item.archivedAt === null &&
+      (item.stockQuantity === null || item.stockQuantity > 0),
     sortOrder: item.sortOrder,
   };
 }

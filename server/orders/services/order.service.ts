@@ -100,8 +100,18 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
     throw new Error("Your cart is empty.");
   }
 
+  for (const item of cart.items) {
+    if (
+      !item.menuItem.isAvailable ||
+      item.menuItem.archivedAt ||
+      (item.menuItem.stockQuantity !== null && item.quantity > item.menuItem.stockQuantity)
+    ) {
+      throw new Error(`${item.menuItem.name} is no longer available in the requested quantity.`);
+    }
+  }
+
   const subtotal = roundMoney(
-    cart.items.reduce((sum, item) => sum + toNumber(item.unitPrice) * item.quantity, 0)
+    cart.items.reduce((sum, item) => sum + toNumber(item.menuItem.price) * item.quantity, 0)
   );
   const tax = 0;
   const deliveryFee = subtotal > 0 ? DELIVERY_FEE : 0;
@@ -109,6 +119,24 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
   const paymentMethod = input.paymentMethod ?? "STRIPE";
 
   const order = await prisma.$transaction(async (tx) => {
+    for (const item of cart.items) {
+      if (item.menuItem.stockQuantity === null) continue;
+
+      const reserved = await tx.menuItem.updateMany({
+        where: {
+          id: item.menuItemId,
+          archivedAt: null,
+          isAvailable: true,
+          stockQuantity: { gte: item.quantity },
+        },
+        data: { stockQuantity: { decrement: item.quantity } },
+      });
+
+      if (reserved.count !== 1) {
+        throw new Error(`${item.menuItem.name} is no longer available in the requested quantity.`);
+      }
+    }
+
     const address = input.address
       ? await tx.address.create({
           data: {
@@ -142,7 +170,7 @@ export async function createOrderFromActiveCart(userId: string, input: CreateOrd
         addressId: address?.id,
         items: {
           create: cart.items.map((item) => {
-            const unitPrice = toNumber(item.unitPrice);
+            const unitPrice = toNumber(item.menuItem.price);
             return {
               menuItemId: item.menuItemId,
               name: item.menuItem.name,

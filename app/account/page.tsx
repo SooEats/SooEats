@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { syncSupabaseUserToDatabase } from "@/server/auth/services/user-sync.service";
 import { requireAuth } from "@/server/auth/middleware/require-auth.middleware";
 import { listOrdersForUser } from "@/server/orders/services/order.service";
@@ -10,6 +11,9 @@ export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const authUser = await requireAuth("/account");
   const appUser = await syncSupabaseUserToDatabase(authUser);
+  if (appUser.role === "ADMIN") {
+    redirect("/admin");
+  }
   const recentOrders = (await listOrdersForUser(appUser.id)).slice(0, 3);
 
   return (
