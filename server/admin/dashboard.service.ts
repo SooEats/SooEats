@@ -1,11 +1,11 @@
 import "server-only";
 
+import { startOfAdminDay } from "@/lib/admin-date-time";
 import { getPrisma } from "@/lib/prisma";
 
 export async function getAdminDashboardMetrics() {
   const prisma = getPrisma();
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const startOfToday = startOfAdminDay();
 
   const [ordersToday, pendingOrders, completedOrders, menuItems, lowStockItems, revenue, recentOrders] =
     await Promise.all([

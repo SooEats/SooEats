@@ -5,6 +5,7 @@ import {
   getAllowedOrderTransitions,
   getOrderForAdmin,
 } from "@/server/orders/services/order-admin.service";
+import { formatAdminDateTime } from "@/lib/admin-date-time";
 import { formatMoney } from "@/lib/format-money";
 import { formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
 
@@ -23,7 +24,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
       <Link href="/admin/orders" className="text-xs font-bold uppercase tracking-widest text-orange-600">Back to orders</Link>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-widest text-brown-400">{new Date(order.createdAt).toLocaleString()}</p>
+          <p className="text-xs uppercase tracking-widest text-brown-400">{formatAdminDateTime(order.createdAt)}</p>
           <h1 className="mt-2 font-display text-4xl font-bold">Order #{order.id.slice(-8)}</h1>
         </div>
         <div className="text-right">

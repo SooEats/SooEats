@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAdminDashboardMetrics } from "@/server/admin/dashboard.service";
+import { formatAdminDateTime } from "@/lib/admin-date-time";
 import { formatMoney } from "@/lib/format-money";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function AdminDashboardPage() {
             <Link key={order.id} href={`/admin/orders/${order.id}`} className="grid gap-2 py-4 text-sm transition hover:bg-brown-50 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:px-3">
               <div>
                 <p className="font-semibold">#{order.id.slice(-8)} · {order.customerName}</p>
-                <p className="text-brown-400">{new Date(order.createdAt).toLocaleString()} · {order.items.length} line items</p>
+                <p className="text-brown-400">{formatAdminDateTime(order.createdAt)} · {order.items.length} line items</p>
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-orange-600">{order.status}</span>
               <span className="font-bold">{formatMoney(Number(order.total), order.currency)}</span>

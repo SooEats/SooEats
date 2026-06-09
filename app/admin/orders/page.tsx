@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listOrdersForAdmin } from "@/server/orders/services/order-admin.service";
+import { formatAdminDateTime } from "@/lib/admin-date-time";
 import { formatMoney } from "@/lib/format-money";
 import { formatPaymentStatus, getPaymentStatusTone } from "@/lib/orders/payment-status";
 
@@ -14,11 +15,13 @@ export default async function AdminOrdersPage() {
       <h1 className="mt-3 font-display text-4xl font-bold">Customer orders</h1>
 
       <div className="mt-8 overflow-x-auto border border-brown-100 bg-white shadow-sm">
-        <table className="w-full min-w-[1050px] text-left text-sm">
+        <table className="w-full min-w-[1350px] text-left text-sm">
           <thead className="border-b border-brown-100 bg-brown-50 text-[11px] uppercase tracking-widest text-brown-500">
             <tr>
               <th className="px-5 py-4">Order</th>
               <th className="px-5 py-4">Customer</th>
+              <th className="px-5 py-4">Phone</th>
+              <th className="px-5 py-4">Delivery address</th>
               <th className="px-5 py-4">Status</th>
               <th className="px-5 py-4">Payment</th>
               <th className="px-5 py-4">Items</th>
@@ -31,11 +34,24 @@ export default async function AdminOrdersPage() {
               <tr key={order.id}>
                 <td className="px-5 py-4">
                   <p className="font-semibold">#{order.id.slice(-8)}</p>
-                  <p className="text-xs text-brown-400">{new Date(order.createdAt).toLocaleString()}</p>
+                  <p className="text-xs text-brown-400">{formatAdminDateTime(order.createdAt)}</p>
                 </td>
                 <td className="px-5 py-4">
                   <p className="font-medium">{order.customerName}</p>
                   <p className="text-xs text-brown-400">{order.customerEmail}</p>
+                </td>
+                <td className="px-5 py-4 text-brown-500">
+                  {order.customerPhone || "Not provided"}
+                </td>
+                <td className="px-5 py-4 text-brown-500">
+                  {order.address ? (
+                    <>
+                      <p>{order.address.line1}</p>
+                      <p className="text-xs">
+                        {order.address.city}, {order.address.state} {order.address.postalCode}
+                      </p>
+                    </>
+                  ) : "Not provided"}
                 </td>
                 <td className="px-5 py-4 font-bold text-orange-600">{order.status}</td>
                 <td className={`px-5 py-4 ${getPaymentStatusTone(order.paymentStatus)}`}>

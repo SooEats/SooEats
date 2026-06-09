@@ -83,6 +83,9 @@ export async function createStripeCheckoutForExistingOrder(userId: string, order
     shipping_address_collection: {
       allowed_countries: [stripeSettings.country as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry],
     },
+    phone_number_collection: {
+      enabled: true,
+    },
     success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
     cancel_url: `${siteUrl}/checkout/cancel?order_id=${order.id}`,
     metadata: {
@@ -225,12 +228,36 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
     typeof session.payment_intent === "string" ? session.payment_intent : null;
   const tax = session.total_details?.amount_tax;
   const total = session.amount_total;
+  const customerPhone = session.customer_details?.phone ?? undefined;
+  const shippingDetails = session.collected_information?.shipping_details;
 
   if (tax === null || tax === undefined || total === null || total === undefined) {
     return;
   }
 
   await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { addressId: true, userId: true },
+    });
+
+    const shippingAddress = shippingDetails?.address;
+    const address =
+      order && !order.addressId && shippingAddress?.line1 && shippingAddress.city && shippingAddress.country
+        ? await tx.address.create({
+            data: {
+              userId: order.userId,
+              label: "Stripe delivery address",
+              line1: shippingAddress.line1,
+              line2: shippingAddress.line2 ?? undefined,
+              city: shippingAddress.city,
+              state: shippingAddress.state ?? "",
+              postalCode: shippingAddress.postal_code ?? "",
+              country: shippingAddress.country,
+            },
+          })
+        : null;
+
     await tx.order.updateMany({
       where: { id: orderId },
       data: {
@@ -239,6 +266,8 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
         status: isPaid ? "CONFIRMED" : undefined,
         tax: fromStripeAmount(tax),
         total: fromStripeAmount(total),
+        customerPhone,
+        addressId: address?.id,
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId: paymentIntentId,
       },
