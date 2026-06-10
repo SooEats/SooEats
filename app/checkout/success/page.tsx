@@ -11,7 +11,13 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const user = await getCurrentAppUser();
 
   if (user && orderId && checkoutSessionId) {
-    await syncStripeCheckoutSessionForOrder(user.id, orderId, checkoutSessionId).catch(() => null);
+    await syncStripeCheckoutSessionForOrder(user.id, orderId, checkoutSessionId).catch((error) => {
+      console.error("Unable to synchronize Stripe Checkout Session.", {
+        orderId,
+        checkoutSessionId,
+        error,
+      });
+    });
   }
 
   return (

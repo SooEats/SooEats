@@ -6,6 +6,7 @@ import { getStripeClient } from "@/lib/stripe";
 import { getSiteUrl } from "@/lib/supabase/env";
 import { createOrderFromActiveCart } from "@/server/orders/services/order.service";
 import { getStripeAccountSettings } from "@/server/payments/services/stripe-account.service";
+import { getStripeCheckoutDeliveryDetails } from "@/server/payments/services/stripe-checkout-delivery";
 
 function toNumber(value: { toNumber?: () => number } | number) {
   return typeof value === "number" ? value : value.toNumber?.() ?? Number(value);
@@ -223,25 +224,35 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
   const orderId = resolveOrderIdFromSession(session);
   if (!orderId) return;
 
-  const isPaid = session.payment_status === "paid";
+  // Webhook and list responses can omit details collected during Checkout.
+  // Retrieve the completed Session so the order receives the authoritative values.
+  const completedSession = await getStripeClient().checkout.sessions.retrieve(session.id);
+  const isPaid = completedSession.payment_status === "paid";
   const paymentIntentId =
-    typeof session.payment_intent === "string" ? session.payment_intent : null;
-  const tax = session.total_details?.amount_tax;
-  const total = session.amount_total;
-  const customerPhone = session.customer_details?.phone ?? undefined;
-  const shippingDetails = session.collected_information?.shipping_details;
+    typeof completedSession.payment_intent === "string" ? completedSession.payment_intent : null;
+  const tax = completedSession.total_details?.amount_tax;
+  const total = completedSession.amount_total;
+  const { customerPhone, shippingAddress } = getStripeCheckoutDeliveryDetails(completedSession);
 
   if (tax === null || tax === undefined || total === null || total === undefined) {
-    return;
+    throw new Error(`Stripe Checkout Session ${completedSession.id} is missing totals.`);
+  }
+
+  if (isPaid && (!customerPhone || !shippingAddress?.line1)) {
+    console.error("Paid Stripe Checkout Session is missing delivery contact details.", {
+      orderId,
+      checkoutSessionId: completedSession.id,
+      phonePresent: Boolean(customerPhone),
+      addressPresent: Boolean(shippingAddress?.line1),
+    });
   }
 
   await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
       where: { id: orderId },
-      select: { addressId: true, userId: true },
+      select: { addressId: true, customerPhone: true, userId: true },
     });
 
-    const shippingAddress = shippingDetails?.address;
     const address =
       order && !order.addressId && shippingAddress?.line1 && shippingAddress.city && shippingAddress.country
         ? await tx.address.create({
@@ -266,15 +277,15 @@ async function markOrderFromCheckoutSession(session: Stripe.Checkout.Session) {
         status: isPaid ? "CONFIRMED" : undefined,
         tax: fromStripeAmount(tax),
         total: fromStripeAmount(total),
-        customerPhone,
-        addressId: address?.id,
-        stripeCheckoutSessionId: session.id,
+        customerPhone: customerPhone ?? order?.customerPhone ?? undefined,
+        addressId: address?.id ?? order?.addressId ?? undefined,
+        stripeCheckoutSessionId: completedSession.id,
         stripePaymentIntentId: paymentIntentId,
       },
     });
 
     await tx.payment.updateMany({
-      where: { stripeCheckoutSessionId: session.id },
+      where: { stripeCheckoutSessionId: completedSession.id },
       data: {
         status: isPaid ? "SUCCEEDED" : "PROCESSING",
         amount: fromStripeAmount(total),
