@@ -105,7 +105,7 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
           >
             <div className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-100 group-hover:ring-orange-300 transition-all duration-300">
               <Image
-                src="/logo.jpeg"
+                src="/newLogo.png"
                 alt="SOOEATS"
                 fill
                 className="object-cover"

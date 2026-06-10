@@ -30,7 +30,7 @@ export function Footer() {
             <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
               <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-700">
                 <Image
-                  src="/logo.jpeg"
+                  src="/newLogo.png"
                   alt="SOOEATS"
                   fill
                   className="object-cover"
