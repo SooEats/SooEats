@@ -30,6 +30,11 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "SOOEATS - Healthy Has Never Tasted This Good",
   description: "Fresh, healthy, and delicious high-protein meals crafted with care. Explore our menu, catering services, meal plans, and nutrition information.",
+  icons: {
+    icon: "/logo.jpeg",
+    shortcut: "/logo.jpeg",
+    apple: "/logo.jpeg",
+  },
 };
 
 export default function RootLayout({
