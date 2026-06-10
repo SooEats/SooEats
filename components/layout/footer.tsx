@@ -28,12 +28,12 @@ export function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-1 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-700">
+              <div className="relative h-16 w-16 shrink-0 md:h-20 md:w-20">
                 <Image
                   src="/newLogo.png"
                   alt="SOOEATS"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
               <h3 className="font-logo text-4xl">

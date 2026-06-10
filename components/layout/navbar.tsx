@@ -103,12 +103,12 @@ export function Navbar({ links = defaultLinks }: NavbarProps) {
             className="flex min-w-0 items-center gap-2 sm:gap-3 group focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg px-2 py-1 sm:px-3 md:px-4 lg:w-lg lg:px-6 lg:justify-self-center"
             aria-label="SOOEATS Home"
           >
-            <div className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-brown-100 group-hover:ring-orange-300 transition-all duration-300">
+            <div className="relative h-14 w-14 shrink-0 sm:h-16 sm:w-16 md:h-20 md:w-20">
               <Image
                 src="/newLogo.png"
                 alt="SOOEATS"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
             <div className="flex min-w-0 flex-col">
